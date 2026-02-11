@@ -1,0 +1,7 @@
+{
+  "name": "LuminaPOS - Modern Restaurant POS",
+  "description": "A feature-rich modern POS system for restaurants with inventory management, QR code ordering, and thermal printer simulation.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
