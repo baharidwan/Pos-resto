@@ -53,7 +53,7 @@ export const INITIAL_USERS: User[] = [
 ];
 
 export const INITIAL_SYSTEM_CONFIG: SystemConfig = {
-  storeName: 'LuminaPOS Resto',
+  storeName: 'Nara Resto',
   address: 'Jl. Menteng Raya No. 42, Jakarta',
   phone: '(021) 555-0123',
   logo: '',

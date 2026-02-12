@@ -38,13 +38,15 @@ export interface OrderItem extends Product {
 
 export interface Order {
   id: string;
+  customerName: string;
   items: OrderItem[];
   total: number;
   timestamp: number;
-  tableNumber?: string;
+  tableNumber: string;
   status: 'pending' | 'completed' | 'cancelled';
   cashReceived?: number;
   change?: number;
+  isPrinted?: boolean; // New property to track if checker was printed
 }
 
-export type View = 'pos' | 'inventory' | 'orders' | 'reports' | 'qr' | 'settings';
+export type View = 'pos' | 'inventory' | 'orders' | 'reports' | 'qr' | 'settings' | 'customer_menu';

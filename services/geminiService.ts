@@ -12,7 +12,7 @@ export const generateProductDescription = async (productName: string, category: 
     return response.text?.trim() || "Deliciously prepared for you.";
   } catch (error) {
     console.error("Gemini Error:", error);
-    return "A customer favorite at LuminaPOS.";
+    return "A customer favorite at Nara.";
   }
 };
 
@@ -30,11 +30,12 @@ export const analyzeSales = async (orders: any[]): Promise<string> => {
     }
 }
 
+// Fixed: Upgraded model to gemini-3-pro-preview for complex reasoning task as per coding guidelines
 export const analyzeProfitReport = async (revenue: number, profit: number, topItems: string[]): Promise<string> => {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-3-pro-preview',
         contents: `As a business consultant, analyze these restaurant stats: 
         Revenue: Rp ${revenue.toLocaleString()}, 
         Gross Profit: Rp ${profit.toLocaleString()}, 
