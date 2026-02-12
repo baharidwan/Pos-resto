@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Product, Order, OrderItem, Table, User, SystemConfig } from './types';
 import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_USERS, INITIAL_SYSTEM_CONFIG } from './constants';
@@ -162,14 +163,26 @@ const App: React.FC = () => {
         const current = loadLocal('products', INITIAL_PRODUCTS);
         saveLocal('products', isDelete ? current.filter((i:any) => i.id !== payload.id) : [...current.filter((i:any) => i.id !== payload.id), payload]);
     } else if (action.includes('order')) {
-        const current = loadLocal('orders', []);
-        const filtered = current.filter((i:any) => i.id !== payload.id);
+        const currentOrders = loadLocal('orders', []);
+        const filtered = currentOrders.filter((i:any) => i.id !== payload.id);
         saveLocal('orders', [...filtered, payload]);
+        
+        // REDUCE STOCK LOCALLY for offline/immediate consistency
+        if (!isDelete && action === 'save_order') {
+            const currentProducts = loadLocal('products', INITIAL_PRODUCTS);
+            const updatedProducts = currentProducts.map((p: Product) => {
+                const itemInOrder = payload.items.find((oi: OrderItem) => oi.id === p.id);
+                if (itemInOrder) {
+                    return { ...p, stock: Math.max(0, p.stock - itemInOrder.quantity) };
+                }
+                return p;
+            });
+            saveLocal('products', updatedProducts);
+        }
     } else if (action.includes('table')) {
         const current = loadLocal('tables', []);
         saveLocal('tables', isDelete ? current.filter((i:any) => i.id !== payload.id) : [...current.filter((i:any) => i.id !== payload.id), payload]);
     } else if (action.includes('user')) {
-        // Fix: Added local sync logic for users
         const current = loadLocal('users', INITIAL_USERS);
         saveLocal('users', isDelete ? current.filter((i:any) => i.id !== payload.id) : [...current.filter((i:any) => i.id !== payload.id), payload]);
     }
@@ -282,6 +295,7 @@ const App: React.FC = () => {
                 pendingOrders={pendingOrders} 
                 isCustomerMode={currentView === 'customer_menu'} 
                 activeTable={activeOrderTable} 
+                // Fixed: Changed from setActiveTable={setActiveTable} to setActiveOrderTable as setActiveTable was not defined
                 setActiveTable={setActiveOrderTable} 
                 activeCustomerName={activeCustomerName} 
                 setActiveCustomerName={setActiveCustomerName} 
@@ -303,7 +317,6 @@ const App: React.FC = () => {
             {currentView === 'qr' && <QRCodeView tables={tables} syncTable={(t, del) => syncData('save_table', t, del)} />}
             {currentView === 'orders' && <OrdersView orders={orders} systemConfig={systemConfig} onMarkPrinted={markOrderAsPrinted} />}
             {currentView === 'reports' && <ReportsView orders={orders} products={products} onDeleteOrder={(id) => syncData('delete_order', {id}, true)} systemConfig={systemConfig} />}
-            {/* Fix: Changed syncUser prop to use syncData function with 'save_user' action */}
             {currentView === 'settings' && <SettingsView users={users} syncUser={(u, del) => syncData('save_user', u, del)} config={systemConfig} setConfig={(c) => { setSystemConfig(c); localStorage.setItem('nara_config', JSON.stringify(c)); }} />}
           </>
         )}

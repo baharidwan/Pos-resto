@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Nara API Engine - Full Management Version
@@ -152,7 +151,7 @@ if ($action == 'save_category') {
     exit;
 }
 
-// 6. SAVE ORDER
+// 6. SAVE ORDER (Updated to reduce stock)
 if ($action == 'save_order') {
     $data = json_decode(file_get_contents("php://input"), true);
     if ($data) {
@@ -169,6 +168,9 @@ if ($action == 'save_order') {
             foreach($data['items'] as $item) {
                 $pid = $item['id']; $in = $item['name']; $iq = $item['quantity']; $ip = $item['price'];
                 $conn->query("INSERT INTO order_items (order_id, product_id, name, quantity, price) VALUES ('$id', '$pid', '$in', $iq, $ip)");
+                
+                // REDUCE STOCK LOGIC
+                $conn->query("UPDATE products SET stock = stock - $iq WHERE id = '$pid'");
             }
             echo json_encode(["success" => true]);
         }
